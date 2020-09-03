@@ -12,6 +12,10 @@ def _unpack_objects(objects: List[Dict[str, Any]], base_path: Path) -> None:
         guid = obj.pop("GUID")
         if not guid:
             raise Exception("Object does not have a GUID.")
+        while guid in index:
+            guid = "{:x}".format(int(guid, base=16) + 1)
+            if len(guid) > 6:
+                raise Exception("Invalid generated guid.")
         index.append(guid)
         path = base_path.joinpath(guid)
         path.mkdir(parents=True, exist_ok=True)
