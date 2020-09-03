@@ -8,27 +8,38 @@ import argparse
 import logging
 import sys
 import traceback
+from typing import Any, Callable, Dict, List, Protocol, Tuple, TypeVar, Union, cast
 
 import attr
+
+
+class CommandType(Protocol):
+    args: List[Tuple[Tuple[str, ...], Dict[str, Any]]]
+
+    def __call__(self, *args: List[Any], **kwargs: Dict[str, Any]) -> None:
+        ...
+
+
+F = TypeVar("F", bound=Union[CommandType, Callable[..., None]])
 
 
 @attr.s(cmp=False)
 class CLI:
     description = attr.ib(type=str)
-    _commands = attr.ib(default=[], init=False)
+    _commands: List[Tuple[CommandType, Any, Any, Any]] = attr.ib(default=[], init=False)
 
-    def command(self, *args, **kwargs):
+    def command(self, *args: Any, **kwargs: Any) -> Callable[[F], F]:
         defaults = kwargs.pop("defaults", {})
 
-        def decorator(func):
-            self._commands.append((func, args, kwargs, defaults))
+        def decorator(func: F) -> F:
+            self._commands.append((cast(CommandType, func), args, kwargs, defaults))
             return func
 
         return decorator
 
     @staticmethod
-    def argument(*names, **kwargs):
-        def decorator(func):
+    def argument(*names: str, **kwargs: Any) -> Callable[[F], F]:
+        def decorator(func: F) -> F:
             if not hasattr(func, "args"):
                 func.args = []
             # Decorators run from bottom to top of the order they were
@@ -41,7 +52,7 @@ class CLI:
 
         return decorator
 
-    def create_parser(self):
+    def create_parser(self) -> argparse.ArgumentParser:
         parser = argparse.ArgumentParser(description=self.description)
         subparsers = parser.add_subparsers(dest="command")
         subparsers.required = True
@@ -52,7 +63,7 @@ class CLI:
             subparser.set_defaults(command=func, **defaults)
         return parser
 
-    def main(self):
+    def main(self) -> None:
         logging.basicConfig(
             format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
         )
