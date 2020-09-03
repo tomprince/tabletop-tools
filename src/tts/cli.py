@@ -12,11 +12,11 @@ app = CLI("Interact with Tabletop Simulator mods")
     "savegame",
     type=Path,
 )
-def unpack(options):
+def unpack_cmd(*, savegame: Path) -> None:
     from .config import config
     from .unpack import unpack
 
-    unpack(savegame=options["savegame"], config=config)
+    unpack(savegame=savegame, config=config)
 
 
 @app.command("repack", help="Repack a tts mod.")
@@ -26,11 +26,11 @@ def unpack(options):
     nargs="?",
     default="build/savegame.json",
 )
-def repack(options):
+def repack_cmd(*, savegame: Path) -> None:
     from .config import config
     from .repack import repack
 
-    repack(savegame=options["savegame"], config=config)
+    repack(savegame=savegame, config=config)
 
 
 main = app.main
