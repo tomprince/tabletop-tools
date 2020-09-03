@@ -8,6 +8,13 @@ on `PyPI <https://pypi.org/project/tabletop-tools/>`__.
 
 .. changelog start
 
+v0.0.2
+......
+
+* Update project metadata.
+* Add release automation.
+
+
 0.0.1
 .....
 
