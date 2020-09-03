@@ -31,7 +31,7 @@ class VersionTransformer(m.MatcherDecoratableTransformer):
 
         old_version = Version(updated_node.evaluated_value)
         self.new_version = self.version_mod(old_version)
-        return updated_node.with_changes(value=repr(str(self.new_version)))
+        return updated_node.with_changes(value=f'"{self.new_version}"')
 
 
 def next_major(version: Version) -> Version:
