@@ -8,6 +8,13 @@ on `PyPI <https://pypi.org/project/tabletop-tools/>`__.
 
 .. changelog start
 
+v0.0.4
+......
+
+* Add a basic README.
+* Update license to the Mozilla Public License 2.0.
+
+
 v0.0.3
 ......
 
