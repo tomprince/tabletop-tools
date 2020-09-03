@@ -13,7 +13,7 @@ author = "Tom Prince"
 author-email = "tom.prince@hocat.ca"
 description-file = "README.rst"
 home-page = "https://github.com/tomprince/tabletop-tools"
-classifiers = ["License :: OSI Approved :: MIT License"]
+classifiers = ["License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)"]
 
 [tool.flit.scripts]
 tts = "tts.cli:main"
