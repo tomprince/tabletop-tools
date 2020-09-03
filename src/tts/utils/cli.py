@@ -59,7 +59,9 @@ class CLI:
         parser = self.create_parser()
         args = parser.parse_args()
         try:
-            args.command(vars(args))
+            command = args.command
+            del args.command
+            command(**vars(args))
         except Exception:
             traceback.print_exc()
             sys.exit(1)
