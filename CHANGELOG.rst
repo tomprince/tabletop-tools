@@ -8,6 +8,12 @@ on `PyPI <https://pypi.org/project/tabletop-tools/>`__.
 
 .. changelog start
 
+v0.0.5
+......
+
+Add trailing newlines to unpacked json files.
+
+
 v0.0.4
 ......
 
