@@ -16,3 +16,8 @@ classifiers = ["License :: OSI Approved :: MIT License"]
 
 [tool.flit.scripts]
 tts = "tts.cli:main"
+
+
+[tool.tts_tooling]
+release_file = "RELEASE.rst"
+changelog = "CHANGELOG.rst"
