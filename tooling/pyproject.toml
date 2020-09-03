@@ -1,0 +1,15 @@
+[build-system]
+requires = ["flit_core >=2,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.metadata]
+module = "tts_tooling"
+author = "Tom Prince"
+author-email = "tom.prince@hocat.ca"
+requires = [
+   "attrs",
+   "libcst ~= 0.3.10",
+   "packaging",
+   "pyyaml",
+   "toml"
+]

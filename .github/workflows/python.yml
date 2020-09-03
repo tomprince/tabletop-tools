@@ -27,7 +27,7 @@ jobs:
         pip install flake8 flake8-isort flake8-black
     - name: Lint with flake8
       run: |
-        flake8 src
+        flake8 src tooling/src
   mypy:
     runs-on: ubuntu-latest
     strategy:
@@ -43,6 +43,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install mypy
+        pip install . ./tooling
     - name: Lint with mypy
       run: |
-        mypy --strict src
+        mypy --strict src tooling/src
