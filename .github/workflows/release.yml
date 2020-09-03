@@ -32,7 +32,7 @@ jobs:
                   git show
             - name: Push changeset
               run:
-                  git push origin HEAD:release-test
+                  git push
               if: "github.event_name == 'push'"
             - name: Publish to pypi
               env:
