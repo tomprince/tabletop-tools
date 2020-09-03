@@ -1,12 +1,16 @@
 import json
+from pathlib import Path
+from typing import Any, Dict, List
 
+from .config import Config
 from .utils.formats import format_json, to_win
 
 
-def repack_objects(objects, base_path):
+def repack_objects(base_path: Path) -> List[Dict[str, Any]]:
+    objects = []
     index_path = base_path.joinpath("index.list")
     if not index_path.is_file():
-        return
+        return []
     index = index_path.read_text().splitlines()
     for guid in index:
         path = base_path.joinpath(guid)
@@ -20,13 +24,13 @@ def repack_objects(objects, base_path):
         else:
             obj["LuaScript"] = ""
         if path.joinpath("contained").is_dir():
-            obj["ContainedObjects"] = []
-            repack_objects(obj["ContainedObjects"], path.joinpath("contained"))
+            obj["ContainedObjects"] = repack_objects(path.joinpath("contained"))
 
         objects.append(obj)
+    return objects
 
 
-def repack(*, savegame, config):
+def repack(*, savegame: Path, config: Config) -> None:
     game = json.loads(config.savegame.read_text())
 
     global_script = config.global_script.read_text()
@@ -41,8 +45,7 @@ def repack(*, savegame, config):
     xml_ui = config.xml_ui.read_text()
     game["XmlUI"] = to_win(xml_ui)
 
-    game["ObjectStates"] = []
-    repack_objects(game["ObjectStates"], config.objects)
+    game["ObjectStates"] = repack_objects(config.objects)
 
     if not savegame.parent.exists():
         savegame.parent.mkdir(parents=True)

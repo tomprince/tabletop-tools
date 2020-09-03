@@ -1,9 +1,12 @@
 import json
+from pathlib import Path
+from typing import Any, Dict, List
 
+from .config import Config
 from .utils.formats import format_json, to_unix
 
 
-def _unpack_objects(objects, base_path):
+def _unpack_objects(objects: List[Dict[str, Any]], base_path: Path) -> None:
     index = []
     for obj in objects:
         guid = obj.pop("GUID")
@@ -26,7 +29,7 @@ def _unpack_objects(objects, base_path):
         base_path.joinpath("index.list").write_text("\n".join(index) + "\n")
 
 
-def unpack(*, savegame, config):
+def unpack(*, savegame: Path, config: Config) -> None:
     game = json.loads(savegame.read_text())
 
     global_script = to_unix(game.pop("LuaScript"))
