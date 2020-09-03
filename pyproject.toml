@@ -5,7 +5,7 @@ build-backend = "flit_core.buildapi"
 [tool.flit.metadata]
 module = "tts"
 dist-name = "tabletop-tools"
-requires=[
+requires = [
     "attrs",
 ]
 requires-python = ">=3.7"
