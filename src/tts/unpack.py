@@ -33,28 +33,26 @@ def _unpack_objects(objects: List[Dict[str, Any]], base_path: Path) -> None:
         base_path.joinpath("index.list").write_text("\n".join(index) + "\n")
 
 
-def unpack(*, savegame: Path, config: Config) -> None:
-    game = json.loads(savegame.read_text())
-
-    global_script = to_unix(game.pop("LuaScript"))
+def unpack(*, savegame: Dict[str, Any], config: Config) -> None:
+    global_script = to_unix(savegame.pop("LuaScript"))
     config.global_script.write_text(global_script)
 
-    script_state = game.pop("LuaScriptState")
+    script_state = savegame.pop("LuaScriptState")
     if script_state:
         script_state = json.loads(script_state)
         config.script_state.write_text(format_json(script_state))
     else:
         config.script_state.unlink()
 
-    note = game.pop("Note")
+    note = savegame.pop("Note")
     config.note.write_text(note)
 
-    xml_ui = to_unix(game.pop("XmlUI"))
+    xml_ui = to_unix(savegame.pop("XmlUI"))
     if xml_ui:
         config.xml_ui.write_text(xml_ui)
     else:
         config.xml_ui.unlink()
 
-    _unpack_objects(game.pop("ObjectStates"), config.objects)
+    _unpack_objects(savegame.pop("ObjectStates"), config.objects)
 
-    config.savegame.write_text(format_json(game))
+    config.savegame.write_text(format_json(savegame))
