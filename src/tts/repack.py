@@ -36,14 +36,20 @@ def repack(*, savegame: Path, config: Config) -> None:
     global_script = config.global_script.read_text()
     game["LuaScript"] = global_script
 
-    script_state = json.loads(config.script_state.read_text())
-    game["LuaScriptState"] = json.dumps(script_state)
+    if config.script_state.exists():
+        script_state = json.loads(config.script_state.read_text())
+        game["LuaScriptState"] = json.dumps(script_state)
+    else:
+        game["LuaScriptState"] = ""
 
     note = config.note.read_text()
     game["Note"] = note
 
-    xml_ui = config.xml_ui.read_text()
-    game["XmlUI"] = xml_ui
+    if config.xml_ui.exists():
+        xml_ui = config.xml_ui.read_text()
+        game["XmlUI"] = xml_ui
+    else:
+        game["XmlUI"] = ""
 
     game["ObjectStates"] = repack_objects(config.objects)
 
