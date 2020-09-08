@@ -19,15 +19,33 @@ def _unpack_objects(objects: List[Dict[str, Any]], base_path: Path) -> None:
         index.append(guid)
         path = base_path.joinpath(guid)
         path.mkdir(parents=True, exist_ok=True)
+
         obj_script = obj.pop("LuaScript")
         script_path = path.joinpath("script.lua")
         if obj_script.strip():
             script_path.write_text(to_unix(obj_script))
         elif script_path.exists():
             script_path.unlink()
+
         contained_objects = obj.pop("ContainedObjects", None)
         if contained_objects is not None:
             _unpack_objects(contained_objects, path.joinpath("contained"))
+
+        script_state = obj.pop("LuaScriptState", "null")
+        script_state_path = path.joinpath("script-state.json")
+        if script_state:
+            script_state = json.loads(script_state)
+            script_state_path.write_text(format_json(script_state))
+        elif script_state_path.exists():
+            script_state_path.unlink()
+
+        xml_ui = obj.pop("XmlUI", None)
+        xml_ui_path = path.joinpath("ui.xml")
+        if xml_ui:
+            xml_ui_path.write_text(to_unix(xml_ui))
+        elif xml_ui_path.exists():
+            xml_ui_path.unlink()
+
         path.joinpath("object.json").write_text(format_json(obj))
     if index:
         base_path.joinpath("index.list").write_text("\n".join(index) + "\n")
