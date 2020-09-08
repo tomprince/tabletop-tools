@@ -36,18 +36,29 @@ def unpack_cmd(*, savegame_file: Optional[Path], fileid: Optional[int]) -> None:
     dest="savegame_file",
     type=Path,
     nargs="?",
-    default="build/savegame.json",
 )
-def repack_cmd(*, savegame_file: Path) -> None:
+@app.argument("--binary", action="store_true")
+def repack_cmd(*, savegame_file: Optional[Path], binary: bool) -> None:
     from .config import config
     from .repack import repack
+
+    if not savegame_file:
+        if binary:
+            savegame_file = Path("build/savegame.bson")
+        else:
+            savegame_file = Path("build/savegame.json")
 
     if not savegame_file.parent.exists():
         savegame_file.parent.mkdir(parents=True)
 
     savegame = repack(config=config)
 
-    savegame_file.write_text(format_json(savegame))
+    if binary:
+        import bson
+
+        savegame_file.write_bytes(bson.dumps(savegame))
+    else:
+        savegame_file.write_text(format_json(savegame))
 
 
 @app.command("workshop-download", help="Download a mod from the steam workshop.")

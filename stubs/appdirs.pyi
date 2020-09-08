@@ -1,0 +1,26 @@
+from typing import Literal, Optional, Union
+
+
+class AppDirs:
+    def __init__(
+        self,
+        appname: Optional[str] = ...,
+        appauthor: Union[str, Literal[False], None] = ...,
+        version: Optional[str] = ...,
+        roaming: bool = ...,
+        multipath: bool = ...,
+    ) -> None: ...
+    @property
+    def user_data_dir(self) -> str: ...
+    @property
+    def site_data_dir(self) -> str: ...
+    @property
+    def user_config_dir(self) -> str: ...
+    @property
+    def site_config_dir(self) -> str: ...
+    @property
+    def user_cache_dir(self) -> str: ...
+    @property
+    def user_state_dir(self) -> str: ...
+    @property
+    def user_log_dir(self) -> str: ...
