@@ -2,4 +2,4 @@
 Tools for interacting with Tabletop Simulator mods.
 """
 
-__version__ = "0.0.7"
+__version__ = "0.1.0"
