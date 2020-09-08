@@ -8,6 +8,11 @@ on `PyPI <https://pypi.org/project/tabletop-tools/>`__.
 
 .. changelog start
 
+v0.0.7
+......
+Handle non-existent script-state and XML UI at the top-level.
+
+
 v0.0.6
 ......
 
