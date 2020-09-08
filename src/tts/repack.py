@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from .config import Config
-from .utils.formats import format_json
 
 
 def repack_objects(base_path: Path) -> List[Dict[str, Any]]:
@@ -45,29 +44,28 @@ def repack_objects(base_path: Path) -> List[Dict[str, Any]]:
     return objects
 
 
-def repack(*, savegame: Path, config: Config) -> None:
-    game = json.loads(config.savegame.read_text())
+def repack(*, config: Config) -> Dict[str, Any]:
+    savegame = json.loads(config.savegame.read_text())
+    assert isinstance(savegame, dict)
 
     global_script = config.global_script.read_text()
-    game["LuaScript"] = global_script
+    savegame["LuaScript"] = global_script
 
     if config.script_state.exists():
         script_state = json.loads(config.script_state.read_text())
-        game["LuaScriptState"] = json.dumps(script_state)
+        savegame["LuaScriptState"] = json.dumps(script_state)
     else:
-        game["LuaScriptState"] = ""
+        savegame["LuaScriptState"] = ""
 
     note = config.note.read_text()
-    game["Note"] = note
+    savegame["Note"] = note
 
     if config.xml_ui.exists():
         xml_ui = config.xml_ui.read_text()
-        game["XmlUI"] = xml_ui
+        savegame["XmlUI"] = xml_ui
     else:
-        game["XmlUI"] = ""
+        savegame["XmlUI"] = ""
 
-    game["ObjectStates"] = repack_objects(config.objects)
+    savegame["ObjectStates"] = repack_objects(config.objects)
 
-    if not savegame.parent.exists():
-        savegame.parent.mkdir(parents=True)
-    savegame.write_text(format_json(game))
+    return savegame
