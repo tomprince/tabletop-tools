@@ -8,6 +8,12 @@ on `PyPI <https://pypi.org/project/tabletop-tools/>`__.
 
 .. changelog start
 
+v0.0.6
+......
+
+Expand `LuaScriptState` and `XmlUI` into individual files in objects.
+
+
 v0.0.5
 ......
 
