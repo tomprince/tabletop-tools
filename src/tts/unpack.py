@@ -57,14 +57,21 @@ def unpack(*, savegame: Path, config: Config) -> None:
     global_script = to_unix(game.pop("LuaScript"))
     config.global_script.write_text(global_script)
 
-    script_state = json.loads(game.pop("LuaScriptState"))
-    config.script_state.write_text(format_json(script_state))
+    script_state = game.pop("LuaScriptState")
+    if script_state:
+        script_state = json.loads(script_state)
+        config.script_state.write_text(format_json(script_state))
+    else:
+        config.script_state.unlink()
 
     note = game.pop("Note")
     config.note.write_text(note)
 
     xml_ui = to_unix(game.pop("XmlUI"))
-    config.xml_ui.write_text(xml_ui)
+    if xml_ui:
+        config.xml_ui.write_text(xml_ui)
+    else:
+        config.xml_ui.unlink()
 
     _unpack_objects(game.pop("ObjectStates"), config.objects)
 
