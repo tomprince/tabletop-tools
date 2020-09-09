@@ -6,6 +6,7 @@ build-backend = "flit_core.buildapi"
 module = "tts"
 dist-name = "tabletop-tools"
 requires = [
+    "appdirs",
     "attrs",
     "bson",
     "requests",
@@ -15,6 +16,11 @@ author = "Tom Prince"
 author-email = "tom.prince@hocat.ca"
 description-file = "README.rst"
 classifiers = ["License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)"]
+
+[tool.flit.metadata.requires-extra]
+upload = [
+    "steam",
+]
 
 [tool.flit.metadata.urls]
 Repository = "https://github.com/tomprince/tabletop-tools"
@@ -26,3 +32,6 @@ tts = "tts.cli:main"
 [tool.tts_tooling]
 release_file = "RELEASE.rst"
 changelog = "CHANGELOG.rst"
+
+[tool.black]
+include = '\.pyi?$'

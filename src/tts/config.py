@@ -1,6 +1,11 @@
 from pathlib import Path
 
 import attr
+from appdirs import AppDirs
+
+APPID = 286160
+
+appdirs = AppDirs("tabletop-tools", appauthor=False)
 
 
 @attr.s(auto_attribs=True)
