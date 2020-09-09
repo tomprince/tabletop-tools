@@ -37,23 +37,41 @@ def unpack_cmd(*, savegame_file: Optional[Path], fileid: Optional[int]) -> None:
     type=Path,
     nargs="?",
 )
+@app.argument("--fileid", type=int, help="Workshop file id to unpack.")
 @app.argument("--binary", action="store_true")
-def repack_cmd(*, savegame_file: Optional[Path], binary: bool) -> None:
+def repack_cmd(
+    *, savegame_file: Optional[Path], fileid: Optional[int], binary: bool
+) -> None:
     from .config import config
     from .repack import repack
 
-    if not savegame_file:
+    if fileid and savegame_file:
+        raise Exception("Can't specify both a savegame file and a workshop file id.")
+    elif fileid and binary:
+        raise Exception("Can't specify both a workshop file id and '--binary'.")
+    elif not savegame_file:
         if binary:
             savegame_file = Path("build/savegame.bson")
         else:
             savegame_file = Path("build/savegame.json")
 
-    if not savegame_file.parent.exists():
+    if not fileid and not savegame_file.parent.exists():
         savegame_file.parent.mkdir(parents=True)
 
     savegame = repack(config=config)
 
-    if binary:
+    if fileid:
+        import bson
+
+        from tts.steam import cli_login, update_file, upload_file
+
+        client = cli_login()
+        # It appears that tabletop simulator depends on the file being named
+        # `WorkshopUpload`.
+        upload_file(client, "WorkshopUpload", bson.dumps(savegame))
+        update_file(client, fileid, "WorkshopUpload")
+
+    elif binary:
         import bson
 
         savegame_file.write_bytes(bson.dumps(savegame))
@@ -74,6 +92,30 @@ def download_cmd(*, fileid: int, output: Optional[Path]) -> None:
 
     mod = get_workshop_mod(fileid)
     output.write_text(format_json(mod))
+
+
+@app.command(
+    "workshop-upload",
+    help="Upload a mod to the steam workshop.",
+    description="This will currently only update a existing mod.",
+)
+@app.argument("fileid", type=int)
+@app.argument(
+    "savegame_file",
+    metavar="savegame",
+    type=Path,
+)
+def upload_cmd(*, fileid: int, savegame_file: Path) -> None:
+    import bson
+
+    from tts.steam import cli_login, update_file, upload_file
+
+    savegame = json.loads(savegame_file.read_text())
+    client = cli_login()
+    # It appears that tabletop simulator depends on the file being named
+    # `WorkshopUpload`.
+    upload_file(client, "WorkshopUpload", bson.dumps(savegame))
+    update_file(client, fileid, "WorkshopUpload")
 
 
 main = app.main
