@@ -23,7 +23,7 @@ def _unpack_objects(objects: List[Dict[str, Any]], base_path: Path) -> None:
         obj_script = obj.pop("LuaScript")
         script_path = path.joinpath("script.lua")
         if obj_script.strip():
-            script_path.write_text(to_unix(obj_script))
+            script_path.write_text(to_unix(obj_script), encoding="utf-8")
         elif script_path.exists():
             script_path.unlink()
 
@@ -35,42 +35,44 @@ def _unpack_objects(objects: List[Dict[str, Any]], base_path: Path) -> None:
         script_state_path = path.joinpath("script-state.json")
         if script_state:
             script_state = json.loads(script_state)
-            script_state_path.write_text(format_json(script_state))
+            script_state_path.write_text(format_json(script_state), encoding="utf-8")
         elif script_state_path.exists():
             script_state_path.unlink()
 
         xml_ui = obj.pop("XmlUI", None)
         xml_ui_path = path.joinpath("ui.xml")
         if xml_ui:
-            xml_ui_path.write_text(to_unix(xml_ui))
+            xml_ui_path.write_text(to_unix(xml_ui), encoding="utf-8")
         elif xml_ui_path.exists():
             xml_ui_path.unlink()
 
-        path.joinpath("object.json").write_text(format_json(obj))
+        path.joinpath("object.json").write_text(format_json(obj), encoding="utf-8")
     if index:
-        base_path.joinpath("index.list").write_text("\n".join(index) + "\n")
+        base_path.joinpath("index.list").write_text(
+            "\n".join(index) + "\n", encoding="utf-8"
+        )
 
 
 def unpack(*, savegame: Dict[str, Any], config: Config) -> None:
     global_script = to_unix(savegame.pop("LuaScript"))
-    config.global_script.write_text(global_script)
+    config.global_script.write_text(global_script, encoding="utf-8")
 
     script_state = savegame.pop("LuaScriptState")
     if script_state:
         script_state = json.loads(script_state)
-        config.script_state.write_text(format_json(script_state))
+        config.script_state.write_text(format_json(script_state), encoding="utf-8")
     else:
         config.script_state.unlink()
 
     note = savegame.pop("Note")
-    config.note.write_text(note)
+    config.note.write_text(note, encoding="utf-8")
 
     xml_ui = to_unix(savegame.pop("XmlUI"))
     if xml_ui:
-        config.xml_ui.write_text(xml_ui)
+        config.xml_ui.write_text(xml_ui, encoding="utf-8")
     else:
         config.xml_ui.unlink()
 
     _unpack_objects(savegame.pop("ObjectStates"), config.objects)
 
-    config.savegame.write_text(format_json(savegame))
+    config.savegame.write_text(format_json(savegame), encoding="utf-8")

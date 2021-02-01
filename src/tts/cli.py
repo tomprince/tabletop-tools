@@ -21,7 +21,7 @@ def unpack_cmd(*, savegame_file: Optional[Path], fileid: Optional[int]) -> None:
     if savegame_file and fileid:
         raise Exception("Can't specify both a savegame file and a workshop file id.")
     elif savegame_file:
-        savegame = json.loads(savegame_file.read_text())
+        savegame = json.loads(savegame_file.read_text(encoding="utf-8"))
     elif fileid:
         savegame = get_workshop_mod(fileid)
     else:
@@ -47,7 +47,7 @@ def repack_cmd(*, savegame_file: Path) -> None:
 
     savegame = repack(config=config)
 
-    savegame_file.write_text(format_json(savegame))
+    savegame_file.write_text(format_json(savegame), encoding="utf-8")
 
 
 @app.command("workshop-download", help="Download a mod from the steam workshop.")
@@ -62,7 +62,7 @@ def download_cmd(*, fileid: int, output: Optional[Path]) -> None:
         output = Path(f"{fileid}.json")
 
     mod = get_workshop_mod(fileid)
-    output.write_text(format_json(mod))
+    output.write_text(format_json(mod), encoding="utf-8")
 
 
 main = app.main
