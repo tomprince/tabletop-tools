@@ -7,4 +7,6 @@ def to_unix(text: str) -> str:
 
 
 def format_json(value: Dict[Any, Any]) -> str:
-    return json.dumps(value, indent=2, separators=(",", ": ")) + "\n"
+    return (
+        json.dumps(value, indent=2, separators=(",", ": "), ensure_ascii=False) + "\n"
+    )
