@@ -8,6 +8,12 @@ on `PyPI <https://pypi.org/project/tabletop-tools/>`__.
 
 .. changelog start
 
+v0.2.0
+......
+* Handle running in non-unicode locales.
+* Don't escape unicode in generated JSON.
+
+
 v0.1.0
 ......
 Add support for unpacking from a workshop mod directly.
