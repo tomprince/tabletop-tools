@@ -3,8 +3,6 @@ from typing import Any, Dict, cast
 
 from node_vm2 import NodeVM, VMServer
 
-from .config import Config
-
 
 class Bundler:
     def __init__(self, module_dir: Path) -> None:
@@ -28,7 +26,7 @@ class Bundler:
         self._vm.destroy()
         self._server.close()
 
-    def unbundle(self, lua_script: str, config: Config) -> str:
+    def unbundle(self, lua_script: str) -> str:
         if not lua_script.startswith("-- Bundled by luabundle "):
             return lua_script
         unbundled = self._module.call_member("unbundleString", lua_script)
@@ -44,7 +42,7 @@ class Bundler:
                 )
         return cast(str, root_module["content"])
 
-    def bundle(self, lua_script: str, config: Config) -> str:
+    def bundle(self, lua_script: str) -> str:
         return cast(
             str,
             self._module.call_member(

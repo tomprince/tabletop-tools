@@ -30,7 +30,7 @@ def _unpack_objects(
         script_path = path.joinpath("script.lua")
         if obj_script.strip():
             script_path.write_text(
-                bundler.unbundle(to_unix(obj_script), config), encoding="utf-8"
+                bundler.unbundle(to_unix(obj_script)), encoding="utf-8"
             )
         elif script_path.exists():
             script_path.unlink()
@@ -67,9 +67,7 @@ def unpack(*, savegame: Dict[str, Any], config: Config) -> None:
     bundler = Bundler(config.lua_modules)
 
     global_script = to_unix(savegame.pop("LuaScript"))
-    config.global_script.write_text(
-        bundler.unbundle(global_script, config), encoding="utf-8"
-    )
+    config.global_script.write_text(bundler.unbundle(global_script), encoding="utf-8")
 
     script_state = savegame.pop("LuaScriptState")
     if script_state:

@@ -6,9 +6,7 @@ from .config import Config
 from .luabundle import Bundler
 
 
-def repack_objects(
-    base_path: Path, config: Config, bundler: Bundler
-) -> List[Dict[str, Any]]:
+def repack_objects(base_path: Path, bundler: Bundler) -> List[Dict[str, Any]]:
     objects = []
     index_path = base_path.joinpath("index.list")
     if not index_path.is_file():
@@ -23,15 +21,13 @@ def repack_objects(
 
         script_path = path.joinpath("script.lua")
         if script_path.exists():
-            obj["LuaScript"] = bundler.bundle(
-                script_path.read_text(encoding="utf-8"), config
-            )
+            obj["LuaScript"] = bundler.bundle(script_path.read_text(encoding="utf-8"))
         else:
             obj["LuaScript"] = ""
 
         if path.joinpath("contained").is_dir():
             obj["ContainedObjects"] = repack_objects(
-                path.joinpath("contained"), config, bundler
+                path.joinpath("contained"), bundler
             )
 
         script_state_path = path.joinpath("script-state.json")
@@ -59,7 +55,7 @@ def repack(*, config: Config) -> Dict[str, Any]:
     assert isinstance(savegame, dict)
 
     global_script = config.global_script.read_text(encoding="utf-8")
-    savegame["LuaScript"] = bundler.bundle(global_script, config)
+    savegame["LuaScript"] = bundler.bundle(global_script)
 
     if config.script_state.exists():
         script_state = json.loads(config.script_state.read_text(encoding="utf-8"))
@@ -76,6 +72,6 @@ def repack(*, config: Config) -> Dict[str, Any]:
     else:
         savegame["XmlUI"] = ""
 
-    savegame["ObjectStates"] = repack_objects(config.objects, config, bundler)
+    savegame["ObjectStates"] = repack_objects(config.objects, bundler)
 
     return savegame
