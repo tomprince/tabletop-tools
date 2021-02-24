@@ -4,6 +4,7 @@ import json
 import re
 from functools import partial
 from pathlib import Path
+from shutil import rmtree
 from typing import (
     Any,
     Callable,
@@ -113,6 +114,12 @@ class UnpackedIndex(Generic[T]):
         for entry in entries:
             verify_name(entry)
         self._index.write_text("\n".join(entries) + "\n")
+        for child in self._path.iterdir():
+            if child.name not in entries and child.name != "index.list":
+                if child.is_dir():
+                    rmtree(str(child))
+                else:
+                    child.unlink()
 
 
 def _get_child(self: Any, *, path: Path, make: Callable[..., T]) -> T:
