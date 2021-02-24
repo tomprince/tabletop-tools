@@ -48,8 +48,8 @@ class _BundleVM:
         self._vm.destroy()
         self._server.close()
 
-    def write_file(self, name: str, script: str) -> None:
-        self._module.call_member("writeFile", name, script)
+    def write_files(self, files: Dict[str, str]) -> None:
+        self._module.call_member("writeFiles", files)
 
     def unbundle_string(self, script: str) -> UnbundledData:
         return cast(
@@ -65,7 +65,7 @@ class _BundleVM:
                 {
                     "luaVersion": "5.2",
                     "isolate": True,
-                    "paths": ["?.lua"],
+                    "paths": ["?"],
                     "metadata": True,
                 },
             ),
@@ -74,14 +74,10 @@ class _BundleVM:
 
 @attr.s(auto_attribs=True)
 class Bundler:
-    module_dir: Path
     _vm: _BundleVM = attr.ib(init=False, default=attr.Factory(_BundleVM))
 
-    def __attrs_post_init__(self) -> None:
-        if self.module_dir.exists():
-            for module in self.module_dir.iterdir():
-                if module.is_file() and module.suffix == ".lua":
-                    self._vm.write_file(module.name, module.read_text(encoding="utf-8"))
+    def load_modules(self, modules: Dict[str, str]) -> None:
+        self._vm.write_files(modules)
 
     def bundle(self, lua_script: str) -> str:
         return self._vm.bundle(lua_script)
@@ -89,7 +85,6 @@ class Bundler:
 
 @attr.s(auto_attribs=True)
 class Unbundler:
-    module_dir: Path
     modules: Dict[str, Any] = attr.ib(init=False, default=attr.Factory(dict))
     _vm: _BundleVM = attr.ib(init=False, default=attr.Factory(_BundleVM))
 
@@ -105,7 +100,4 @@ class Unbundler:
                     raise Exception(f"Inconsistent module {name}.")
             else:
                 self.modules[name] = module["content"]
-                self.module_dir.joinpath(f"{name}.lua").write_text(
-                    module["content"], encoding="utf-8"
-                )
         return root_module["content"]

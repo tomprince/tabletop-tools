@@ -48,7 +48,14 @@ def repack_objects(base_path: Path, bundler: Bundler) -> List[Dict[str, Any]]:
 
 
 def repack(*, config: Config) -> Dict[str, Any]:
-    bundler = Bundler(config.lua_modules)
+    bundler = Bundler()
+
+    if config.lua_modules.exists():
+        modules = {}
+        for module in config.lua_modules.iterdir():
+            if module.is_file() and module.suffix == ".lua":
+                modules[module.stem] = module.read_text(encoding="utf-8")
+        bundler.load_modules(modules)
 
     savegame = json.loads(config.savegame.read_text(encoding="utf-8"))
 

@@ -61,7 +61,7 @@ def _unpack_objects(
 
 
 def unpack(*, savegame: Dict[str, Any], config: Config) -> None:
-    unbundler = Unbundler(config.lua_modules)
+    unbundler = Unbundler()
 
     global_script = to_unix(savegame.pop("LuaScript"))
     config.global_script.write_text(unbundler.unbundle(global_script), encoding="utf-8")
@@ -83,5 +83,12 @@ def unpack(*, savegame: Dict[str, Any], config: Config) -> None:
         config.xml_ui.unlink()
 
     _unpack_objects(savegame.pop("ObjectStates"), config.objects, unbundler)
+
+    if unbundler.modules:
+        config.lua_modules.mkdir(exist_ok=True)
+        for name, content in unbundler.modules.items():
+            config.lua_modules.joinpath(f"{name}.lua").write_text(
+                content, encoding="utf-8"
+            )
 
     config.savegame.write_text(format_json(savegame), encoding="utf-8")
