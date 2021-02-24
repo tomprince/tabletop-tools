@@ -11,7 +11,6 @@ class Config:
     note: Path
     objects: Path
     xml_ui: Path
-    lua_modules: Path
 
 
 config = Config(
@@ -21,5 +20,4 @@ config = Config(
     note=Path("note.txt"),
     xml_ui=Path("ui.xml"),
     objects=Path("objects"),
-    lua_modules=Path("modules"),
 )
