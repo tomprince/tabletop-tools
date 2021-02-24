@@ -48,8 +48,8 @@ class _BundleVM:
         self._vm.destroy()
         self._server.close()
 
-    def write_file(self, name: str, script: str) -> None:
-        self._module.call_member("writeFile", name, script)
+    def write_files(self, files: Dict[str, str]) -> None:
+        self._module.call_member("writeFiles", files)
 
     def unbundle_string(self, script: str) -> UnbundledData:
         return cast(
@@ -79,9 +79,11 @@ class Bundler:
 
     def __attrs_post_init__(self) -> None:
         if self.module_dir.exists():
+            modules = {}
             for module in self.module_dir.iterdir():
                 if module.is_file() and module.suffix == ".lua":
-                    self._vm.write_file(module.stem, module.read_text(encoding="utf-8"))
+                    modules[module.stem] = module.read_text(encoding="utf-8")
+            self._vm.write_files(modules)
 
     def bundle(self, lua_script: str) -> str:
         return self._vm.bundle(lua_script)

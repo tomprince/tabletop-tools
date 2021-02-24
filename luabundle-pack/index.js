@@ -1,2 +1,2 @@
-export {writeFileSync as writeFile} from "fs";
+export {writeFiles} from "fs";
 export {bundleString, unbundleString} from "luabundle";
