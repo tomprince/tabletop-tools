@@ -65,7 +65,7 @@ class _BundleVM:
                 {
                     "luaVersion": "5.2",
                     "isolate": True,
-                    "paths": ["?.lua"],
+                    "paths": ["?"],
                     "metadata": True,
                 },
             ),
@@ -81,7 +81,7 @@ class Bundler:
         if self.module_dir.exists():
             for module in self.module_dir.iterdir():
                 if module.is_file() and module.suffix == ".lua":
-                    self._vm.write_file(module.name, module.read_text(encoding="utf-8"))
+                    self._vm.write_file(module.stem, module.read_text(encoding="utf-8"))
 
     def bundle(self, lua_script: str) -> str:
         return self._vm.bundle(lua_script)
