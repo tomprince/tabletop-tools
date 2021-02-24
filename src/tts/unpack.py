@@ -3,15 +3,14 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from .config import Config
-from .luabundle import Bundler
+from .luabundle import Unbundler
 from .utils.formats import format_json, to_unix
 
 
 def _unpack_objects(
     objects: List[Dict[str, Any]],
     base_path: Path,
-    config: Config,
-    bundler: Bundler,
+    unbundler: Unbundler,
 ) -> None:
     index = []
     for obj in objects:
@@ -30,16 +29,14 @@ def _unpack_objects(
         script_path = path.joinpath("script.lua")
         if obj_script.strip():
             script_path.write_text(
-                bundler.unbundle(to_unix(obj_script)), encoding="utf-8"
+                unbundler.unbundle(to_unix(obj_script)), encoding="utf-8"
             )
         elif script_path.exists():
             script_path.unlink()
 
         contained_objects = obj.pop("ContainedObjects", None)
         if contained_objects is not None:
-            _unpack_objects(
-                contained_objects, path.joinpath("contained"), config, bundler
-            )
+            _unpack_objects(contained_objects, path.joinpath("contained"), unbundler)
 
         script_state = obj.pop("LuaScriptState", "null")
         script_state_path = path.joinpath("script-state.json")
@@ -64,10 +61,10 @@ def _unpack_objects(
 
 
 def unpack(*, savegame: Dict[str, Any], config: Config) -> None:
-    bundler = Bundler(config.lua_modules)
+    unbundler = Unbundler(config.lua_modules)
 
     global_script = to_unix(savegame.pop("LuaScript"))
-    config.global_script.write_text(bundler.unbundle(global_script), encoding="utf-8")
+    config.global_script.write_text(unbundler.unbundle(global_script), encoding="utf-8")
 
     script_state = savegame.pop("LuaScriptState")
     if script_state:
@@ -85,6 +82,6 @@ def unpack(*, savegame: Dict[str, Any], config: Config) -> None:
     else:
         config.xml_ui.unlink()
 
-    _unpack_objects(savegame.pop("ObjectStates"), config.objects, config, bundler)
+    _unpack_objects(savegame.pop("ObjectStates"), config.objects, unbundler)
 
     config.savegame.write_text(format_json(savegame), encoding="utf-8")
