@@ -8,6 +8,12 @@ on `PyPI <https://pypi.org/project/tabletop-tools/>`__.
 
 .. changelog start
 
+v0.4.0
+......
+- **BREAKING CHANGE**: Rename ``unpacked-savegame.json`` to ``savegame.json`` and ``global-script.lua`` to ``script.lua``.
+- Change default repacked savegame name to ``build/packed-savegame.json``.
+
+
 v0.3.2
 ......
 More luabundle code refactoring.
