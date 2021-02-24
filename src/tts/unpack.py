@@ -63,8 +63,8 @@ def _unpack_objects(
 def unpack(*, savegame: Dict[str, Any], config: Config) -> None:
     unbundler = Unbundler()
 
-    global_script = to_unix(savegame.pop("LuaScript"))
-    config.global_script.write_text(unbundler.unbundle(global_script), encoding="utf-8")
+    script = to_unix(savegame.pop("LuaScript"))
+    config.script.write_text(unbundler.unbundle(script), encoding="utf-8")
 
     script_state = savegame.pop("LuaScriptState")
     if script_state:

@@ -61,8 +61,8 @@ def repack(*, config: Config) -> Dict[str, Any]:
 
     assert isinstance(savegame, dict)
 
-    global_script = config.global_script.read_text(encoding="utf-8")
-    savegame["LuaScript"] = bundler.bundle(global_script)
+    script = config.script.read_text(encoding="utf-8")
+    savegame["LuaScript"] = bundler.bundle(script)
 
     if config.script_state.exists():
         script_state = json.loads(config.script_state.read_text(encoding="utf-8"))
