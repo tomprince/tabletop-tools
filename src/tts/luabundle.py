@@ -74,16 +74,10 @@ class _BundleVM:
 
 @attr.s(auto_attribs=True)
 class Bundler:
-    module_dir: Path
     _vm: _BundleVM = attr.ib(init=False, default=attr.Factory(_BundleVM))
 
-    def __attrs_post_init__(self) -> None:
-        if self.module_dir.exists():
-            modules = {}
-            for module in self.module_dir.iterdir():
-                if module.is_file() and module.suffix == ".lua":
-                    modules[module.stem] = module.read_text(encoding="utf-8")
-            self._vm.write_files(modules)
+    def load_modules(self, modules: Dict[str, str]) -> None:
+        self._vm.write_files(modules)
 
     def bundle(self, lua_script: str) -> str:
         return self._vm.bundle(lua_script)
@@ -91,7 +85,6 @@ class Bundler:
 
 @attr.s(auto_attribs=True)
 class Unbundler:
-    module_dir: Path
     modules: Dict[str, Any] = attr.ib(init=False, default=attr.Factory(dict))
     _vm: _BundleVM = attr.ib(init=False, default=attr.Factory(_BundleVM))
 
@@ -107,7 +100,4 @@ class Unbundler:
                     raise Exception(f"Inconsistent module {name}.")
             else:
                 self.modules[name] = module["content"]
-                self.module_dir.joinpath(f"{name}.lua").write_text(
-                    module["content"], encoding="utf-8"
-                )
         return root_module["content"]
