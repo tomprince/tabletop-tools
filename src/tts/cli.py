@@ -36,7 +36,7 @@ def unpack_cmd(*, savegame_file: Optional[Path], fileid: Optional[int]) -> None:
     dest="savegame_file",
     type=Path,
     nargs="?",
-    default="build/savegame.json",
+    default="build/packed-savegame.json",
 )
 def repack_cmd(*, savegame_file: Path) -> None:
     from .config import config

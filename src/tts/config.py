@@ -6,7 +6,7 @@ import attr
 @attr.s(auto_attribs=True)
 class Config:
     savegame: Path
-    global_script: Path
+    script: Path
     script_state: Path
     note: Path
     objects: Path
@@ -15,8 +15,8 @@ class Config:
 
 
 config = Config(
-    savegame=Path("unpacked-savegame.json"),
-    global_script=Path("global-script.lua"),
+    savegame=Path("savegame.json"),
+    script=Path("script.lua"),
     script_state=Path("script-state.json"),
     note=Path("note.txt"),
     xml_ui=Path("ui.xml"),
