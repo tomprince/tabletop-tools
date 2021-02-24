@@ -8,6 +8,11 @@ on `PyPI <https://pypi.org/project/tabletop-tools/>`__.
 
 .. changelog start
 
+v0.3.1
+......
+Refactor luabundle code.
+
+
 v0.3.0
 ......
 Add support for running luabundler on input/output.
