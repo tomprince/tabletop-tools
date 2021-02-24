@@ -8,6 +8,11 @@ on `PyPI <https://pypi.org/project/tabletop-tools/>`__.
 
 .. changelog start
 
+v0.3.2
+......
+More luabundle code refactoring.
+
+
 v0.3.1
 ......
 Refactor luabundle code.
