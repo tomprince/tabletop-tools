@@ -1,12 +1,13 @@
 import json
-from pathlib import Path
 from typing import Any, Dict, List
 
-from .config import Config
-from .utils.formats import format_json, to_unix
+from .savegame import UnpackedIndex, UnpackedObject, UnpackedSavegame
 
 
-def _unpack_objects(objects: List[Dict[str, Any]], base_path: Path) -> None:
+def _unpack_objects(
+    objects: List[Dict[str, Any]],
+    base_path: UnpackedIndex[UnpackedObject],
+) -> None:
     index = []
     for obj in objects:
         guid = obj.pop("GUID")
@@ -17,62 +18,39 @@ def _unpack_objects(objects: List[Dict[str, Any]], base_path: Path) -> None:
             if len(guid) > 6:
                 raise Exception("Invalid generated guid.")
         index.append(guid)
-        path = base_path.joinpath(guid)
-        path.mkdir(parents=True, exist_ok=True)
+        unpacked_object = base_path.child(guid, create=True)
 
         obj_script = obj.pop("LuaScript")
-        script_path = path.joinpath("script.lua")
-        if obj_script.strip():
-            script_path.write_text(to_unix(obj_script), encoding="utf-8")
-        elif script_path.exists():
-            script_path.unlink()
+        unpacked_object.script.write_text(obj_script)
 
         contained_objects = obj.pop("ContainedObjects", None)
         if contained_objects is not None:
-            _unpack_objects(contained_objects, path.joinpath("contained"))
+            _unpack_objects(contained_objects, unpacked_object.contained)
 
-        script_state = obj.pop("LuaScriptState", "null")
-        script_state_path = path.joinpath("script-state.json")
-        if script_state:
-            script_state = json.loads(script_state)
-            script_state_path.write_text(format_json(script_state), encoding="utf-8")
-        elif script_state_path.exists():
-            script_state_path.unlink()
+        script_state = json.loads(obj.pop("LuaScriptState") or "null")
+        unpacked_object.script_state.write_json(script_state)
 
-        xml_ui = obj.pop("XmlUI", None)
-        xml_ui_path = path.joinpath("ui.xml")
-        if xml_ui:
-            xml_ui_path.write_text(to_unix(xml_ui), encoding="utf-8")
-        elif xml_ui_path.exists():
-            xml_ui_path.unlink()
+        xml_ui = obj.pop("XmlUI", "")
+        unpacked_object.xml_ui.write_text(xml_ui.strip())
 
-        path.joinpath("object.json").write_text(format_json(obj), encoding="utf-8")
+        unpacked_object.object.write_json(obj)
     if index:
-        base_path.joinpath("index.list").write_text(
-            "\n".join(index) + "\n", encoding="utf-8"
-        )
+        base_path.write_index(index)
 
 
-def unpack(*, savegame: Dict[str, Any], config: Config) -> None:
-    script = to_unix(savegame.pop("LuaScript"))
-    config.script.write_text(script, encoding="utf-8")
+def unpack(*, savegame: Dict[str, Any], unpacked_savegame: UnpackedSavegame) -> None:
+    script = savegame.pop("LuaScript").strip()
+    unpacked_savegame.script.write_text(script)
 
-    script_state = savegame.pop("LuaScriptState")
-    if script_state:
-        script_state = json.loads(script_state)
-        config.script_state.write_text(format_json(script_state), encoding="utf-8")
-    else:
-        config.script_state.unlink()
+    script_state = json.loads(savegame.pop("LuaScriptState") or "null")
+    unpacked_savegame.script_state.write_json(script_state)
 
     note = savegame.pop("Note")
-    config.note.write_text(note, encoding="utf-8")
+    unpacked_savegame.note.write_text(note)
 
-    xml_ui = to_unix(savegame.pop("XmlUI"))
-    if xml_ui:
-        config.xml_ui.write_text(xml_ui, encoding="utf-8")
-    else:
-        config.xml_ui.unlink()
+    xml_ui = savegame.pop("XmlUI", "")
+    unpacked_savegame.xml_ui.write_text(xml_ui.strip())
 
-    _unpack_objects(savegame.pop("ObjectStates"), config.objects)
+    _unpack_objects(savegame.pop("ObjectStates"), unpacked_savegame.objects)
 
-    config.savegame.write_text(format_json(savegame), encoding="utf-8")
+    unpacked_savegame.savegame.write_json(savegame)

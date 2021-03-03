@@ -14,7 +14,7 @@ app = CLI("Interact with Tabletop Simulator mods")
 @app.argument(metavar="savegame", dest="savegame_file", type=Path, nargs="?")
 @app.argument("--fileid", type=int, help="Workshop file id to unpack.")
 def unpack_cmd(*, savegame_file: Optional[Path], fileid: Optional[int]) -> None:
-    from .config import config
+    from .savegame import UnpackedSavegame
     from .unpack import unpack
     from .workshop import get_workshop_mod
 
@@ -27,7 +27,7 @@ def unpack_cmd(*, savegame_file: Optional[Path], fileid: Optional[int]) -> None:
     else:
         raise Exception("Must specify a savegame file or workshop fileid.")
 
-    unpack(savegame=savegame, config=config)
+    unpack(savegame=savegame, unpacked_savegame=UnpackedSavegame(Path.cwd()))
 
 
 @app.command("repack", help="Repack a tts mod.")
@@ -39,13 +39,13 @@ def unpack_cmd(*, savegame_file: Optional[Path], fileid: Optional[int]) -> None:
     default="build/packed-savegame.json",
 )
 def repack_cmd(*, savegame_file: Path) -> None:
-    from .config import config
     from .repack import repack
+    from .savegame import UnpackedSavegame
 
     if not savegame_file.parent.exists():
         savegame_file.parent.mkdir(parents=True)
 
-    savegame = repack(config=config)
+    savegame = repack(unpacked_savegame=UnpackedSavegame(Path.cwd()))
 
     savegame_file.write_text(format_json(savegame), encoding="utf-8")
 
