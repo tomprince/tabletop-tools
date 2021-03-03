@@ -8,6 +8,13 @@ on `PyPI <https://pypi.org/project/tabletop-tools/>`__.
 
 .. changelog start
 
+v0.5.0
+......
+Backout luabundler support. It requires having node installed as well as python
+which is not great.  I hope to add support for it again, without that dependency,
+but back it out for now, for the spirit island mod.
+
+
 v0.4.0
 ......
 - **BREAKING CHANGE**: Rename ``unpacked-savegame.json`` to ``savegame.json`` and ``global-script.lua`` to ``script.lua``.
