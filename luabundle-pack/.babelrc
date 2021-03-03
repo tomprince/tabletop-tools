@@ -1,4 +1,0 @@
-{
-  "caller": {supportsStaticESM: true},
-  "plugins": ["babel-plugin-static-fs"],
-}

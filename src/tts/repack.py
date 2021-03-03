@@ -3,10 +3,9 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from .config import Config
-from .luabundle import Bundler
 
 
-def repack_objects(base_path: Path, bundler: Bundler) -> List[Dict[str, Any]]:
+def repack_objects(base_path: Path) -> List[Dict[str, Any]]:
     objects = []
     index_path = base_path.joinpath("index.list")
     if not index_path.is_file():
@@ -21,14 +20,12 @@ def repack_objects(base_path: Path, bundler: Bundler) -> List[Dict[str, Any]]:
 
         script_path = path.joinpath("script.lua")
         if script_path.exists():
-            obj["LuaScript"] = bundler.bundle(script_path.read_text(encoding="utf-8"))
+            obj["LuaScript"] = script_path.read_text(encoding="utf-8")
         else:
             obj["LuaScript"] = ""
 
         if path.joinpath("contained").is_dir():
-            obj["ContainedObjects"] = repack_objects(
-                path.joinpath("contained"), bundler
-            )
+            obj["ContainedObjects"] = repack_objects(path.joinpath("contained"))
 
         script_state_path = path.joinpath("script-state.json")
         if script_state_path.exists():
@@ -48,21 +45,11 @@ def repack_objects(base_path: Path, bundler: Bundler) -> List[Dict[str, Any]]:
 
 
 def repack(*, config: Config) -> Dict[str, Any]:
-    bundler = Bundler()
-
-    if config.lua_modules.exists():
-        modules = {}
-        for module in config.lua_modules.iterdir():
-            if module.is_file() and module.suffix == ".lua":
-                modules[module.stem] = module.read_text(encoding="utf-8")
-        bundler.load_modules(modules)
-
     savegame = json.loads(config.savegame.read_text(encoding="utf-8"))
-
     assert isinstance(savegame, dict)
 
     script = config.script.read_text(encoding="utf-8")
-    savegame["LuaScript"] = bundler.bundle(script)
+    savegame["LuaScript"] = script
 
     if config.script_state.exists():
         script_state = json.loads(config.script_state.read_text(encoding="utf-8"))
@@ -79,6 +66,6 @@ def repack(*, config: Config) -> Dict[str, Any]:
     else:
         savegame["XmlUI"] = ""
 
-    savegame["ObjectStates"] = repack_objects(config.objects, bundler)
+    savegame["ObjectStates"] = repack_objects(config.objects)
 
     return savegame
