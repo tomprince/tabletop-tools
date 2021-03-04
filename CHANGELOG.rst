@@ -8,6 +8,11 @@ on `PyPI <https://pypi.org/project/tabletop-tools/>`__.
 
 .. changelog start
 
+v0.5.1
+......
+Add trailing newlines to all files.
+
+
 v0.5.0
 ......
 Backout luabundler support. It requires having node installed as well as python
