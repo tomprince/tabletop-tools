@@ -27,6 +27,15 @@ def _repack_objects(base_path: UnpackedIndex[UnpackedObject]) -> List[Dict[str, 
 
         obj["XmlUI"] = unpacked_object.xml_ui.read_text()
 
+        description = unpacked_object.description.read_text()
+        if "Description" in obj and description:
+            if obj["Description"] != description:
+                raise Exception(
+                    f"'description.txt' disagrees with 'Description' in 'object.json' for object {guid}"
+                )
+        elif description:
+            obj["Description"] = description
+
         objects.append(obj)
     return objects
 

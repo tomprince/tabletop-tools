@@ -166,6 +166,7 @@ class UnpackedObject:
     object: JsonFile = Path("object.json")
     script: ScriptFile = Path("script.lua")
     script_state: JsonFile = Path("script-state.json")
+    description: TextFile = Path("description.txt")
     xml_ui: TextFile = Path("ui.xml")
     contained: UnpackedIndex[UnpackedObject] = Path("contained")
 

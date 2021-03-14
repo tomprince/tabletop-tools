@@ -33,6 +33,13 @@ def _unpack_objects(
         xml_ui = obj.pop("XmlUI", "")
         unpacked_object.xml_ui.write_text(xml_ui.strip())
 
+        if "\n" in obj["Description"]:
+            description = obj.pop("Description")
+            unpacked_object.description.write_text(description)
+        else:
+            # FIXME: This deletes description.txt
+            unpacked_object.description.write_text(None)
+
         unpacked_object.object.write_json(obj)
     if index:
         base_path.write_index(index)
