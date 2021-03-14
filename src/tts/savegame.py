@@ -75,6 +75,24 @@ class TextFile:
 
 
 @attr.s(auto_attribs=True)
+class ScriptFile:
+    """
+    File that TTS strips trailing new-lines from when sending to external editor
+    """
+
+    _file: TextFile = attr.ib(converter=TextFile)
+
+    def write_text(self, data: str) -> None:
+        self._file.write_text(data)
+
+    def read_text(self) -> str:
+        text = self._file.read_text()
+        if text is not None:
+            text = text.rstrip("\n")
+        return text
+
+
+@attr.s(auto_attribs=True)
 class UnpackedIndex(Generic[T]):
     _path: Path
     _child_type: Callable[[Path], T]
@@ -138,7 +156,7 @@ def _unpacked_layout(cls: type) -> type:
 @_unpacked_layout
 class UnpackedObject:
     object: JsonFile = Path("object.json")
-    script: TextFile = Path("script.lua")
+    script: ScriptFile = Path("script.lua")
     script_state: JsonFile = Path("script-state.json")
     xml_ui: TextFile = Path("ui.xml")
     contained: UnpackedIndex[UnpackedObject] = Path("contained")
@@ -147,7 +165,7 @@ class UnpackedObject:
 @_unpacked_layout
 class UnpackedSavegame:
     savegame: JsonFile = Path("savegame.json")
-    script: TextFile = Path("script.lua")
+    script: ScriptFile = Path("script.lua")
     script_state: JsonFile = Path("script-state.json")
     note: TextFile = Path("note.txt")
     xml_ui: TextFile = Path("ui.xml")
