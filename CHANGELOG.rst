@@ -8,6 +8,11 @@ on `PyPI <https://pypi.org/project/tabletop-tools/>`__.
 
 .. changelog start
 
+v0.5.2
+......
+(INTERNAL) Add an abstraction around the strucutre of an unpacked savegame.
+
+
 v0.5.1
 ......
 Add trailing newlines to all files.
