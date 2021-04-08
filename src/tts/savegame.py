@@ -87,6 +87,10 @@ class UnpackedIndex(Generic[T]):
     def _index(self) -> TextFile:
         return TextFile(self._path.joinpath("index.list"))
 
+    @property
+    def path(self) -> Path:
+        return self._path
+
     def exists(self) -> bool:
         return self._path.is_dir()
 
@@ -97,8 +101,11 @@ class UnpackedIndex(Generic[T]):
         path = self._path.joinpath(name)
         if create:
             path.mkdir(parents=True, exist_ok=True)
-        elif not path.is_dir():
-            raise Exception("Objects must be directories")
+        else:
+            if not path.exists():
+                raise Exception(f"Couldn't find object {name} in {self._path}")
+            elif not path.is_dir():
+                raise Exception(f"Object {name} is not a directory in {self._path}")
         return self._child_type(path)
 
     def children(self) -> Iterator[Tuple[str, T]]:
@@ -120,11 +127,15 @@ def _get_child(self: Any, *, path: Path, make: Callable[..., T]) -> T:
 
 
 def _unpacked_layout(cls: type) -> type:
-    new_cls = attr.make_class(cls.__name__, {"_path": attr.ib(type=Path)})
+    new_cls = attr.make_class(
+        cls.__name__,
+        {"_path": attr.ib(type=Path)},
+    )
     hints = get_type_hints(cls, None, {cls.__name__: new_cls})
     for name, attr_type in hints.items():
         p = partial(_get_child, path=getattr(cls, name), make=attr_type)
         setattr(new_cls, name, property(p))
+    setattr(new_cls, "path", property(lambda self: self._path))
     return new_cls
 
 

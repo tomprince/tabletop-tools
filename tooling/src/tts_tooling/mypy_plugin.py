@@ -3,7 +3,15 @@ from __future__ import annotations
 from typing import Callable, Optional, Type
 
 import mypy
-from mypy.nodes import ARG_POS, Argument, AssignmentStmt, NameExpr, Var
+from mypy.nodes import (
+    ARG_POS,
+    MDEF,
+    Argument,
+    AssignmentStmt,
+    NameExpr,
+    SymbolTableNode,
+    Var,
+)
 from mypy.plugin import ClassDefContext, Plugin
 from mypy.plugins.common import add_method
 from mypy.types import NoneType
@@ -17,6 +25,14 @@ def _make_name_lvalue_var(
     var.is_ready = True
     var.info = ctx.cls.info
     return var
+
+
+def add_var(ctx: ClassDefContext, name: str, type: "mypy.types.Type"):
+    var = Var(name)
+    var.info = ctx.cls.info
+    var._fullname = f"{ctx.cls.info.fullname}.{name}"
+    var.type = type
+    ctx.cls.info.names[name] = SymbolTableNode(MDEF, var)
 
 
 def layout_class_callback(ctx: ClassDefContext) -> None:
@@ -38,6 +54,7 @@ def layout_class_callback(ctx: ClassDefContext) -> None:
         [Argument(Var("path"), path_type, None, ARG_POS)],
         NoneType(),
     )
+    add_var(ctx, "path", path_type)
 
 
 class LayoutPlugin(Plugin):

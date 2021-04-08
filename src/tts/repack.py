@@ -9,8 +9,9 @@ def _repack_objects(base_path: UnpackedIndex[UnpackedObject]) -> List[Dict[str, 
     for guid, unpacked_object in base_path.children():
         obj = unpacked_object.object.read_json()
         if obj is None:
-            # TODO: give object path
-            raise Exception(f"Couldn't find object with GUID {guid}.")
+            raise Exception(
+                f"Missing 'object.json' for object in '{unpacked_object.path}'."
+            )
         obj["GUID"] = guid
 
         obj["LuaScript"] = unpacked_object.script.read_text()

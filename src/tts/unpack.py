@@ -12,7 +12,7 @@ def _unpack_objects(
     for obj in objects:
         guid = obj.pop("GUID")
         if not guid:
-            raise Exception("Object does not have a GUID.")
+            raise Exception(f"Object does not have in f{base_path.path}")
         while guid in index:
             guid = "{:x}".format(int(guid, base=16) + 1)
             if len(guid) > 6:
