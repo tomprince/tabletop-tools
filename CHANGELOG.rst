@@ -8,6 +8,11 @@ on `PyPI <https://pypi.org/project/tabletop-tools/>`__.
 
 .. changelog start
 
+v0.6.0
+......
+tabletop-tools will now automatically delete unreferenced directories when unpacking.
+
+
 v0.5.2
 ......
 (INTERNAL) Add an abstraction around the strucutre of an unpacked savegame.
