@@ -21,6 +21,7 @@ def _make_name_lvalue_var(
 
 def layout_class_callback(ctx: ClassDefContext) -> None:
     path_type = ctx.api.builtin_type("pathlib.Path")
+    config_type = ctx.api.named_type_or_none("tts.config.Config")  # type: ignore
 
     # Change the types of class members when type checking the body to `pathlib.Path`.
     # `_unpacked_layout` expects the values to be paths.
@@ -35,7 +36,10 @@ def layout_class_callback(ctx: ClassDefContext) -> None:
     add_method(
         ctx,
         "__init__",
-        [Argument(Var("path"), path_type, None, ARG_POS)],
+        [
+            Argument(Var("path"), path_type, None, ARG_POS),
+            Argument(Var("config"), config_type, None, ARG_POS),
+        ],
         NoneType(),
     )
 

@@ -13,6 +13,7 @@ app = CLI("Interact with Tabletop Simulator mods")
 @app.argument(metavar="savegame", dest="savegame_file", type=Path, nargs="?")
 @app.argument("--fileid", type=int, help="Workshop file id to unpack.")
 def unpack_cmd(*, savegame_file: Optional[Path], fileid: Optional[int]) -> None:
+    from .config import CONFIG_NAME, Config
     from .savegame import UnpackedSavegame
     from .unpack import unpack
     from .workshop import get_workshop_mod
@@ -26,7 +27,10 @@ def unpack_cmd(*, savegame_file: Optional[Path], fileid: Optional[int]) -> None:
     else:
         raise Exception("Must specify a savegame file or workshop fileid.")
 
-    unpack(savegame=savegame, unpacked_savegame=UnpackedSavegame(Path.cwd()))
+    savegame_dir = Path.cwd()
+    config = Config.load(savegame_dir.joinpath(CONFIG_NAME))
+
+    unpack(savegame=savegame, unpacked_savegame=UnpackedSavegame(savegame_dir, config))
 
 
 @app.command("repack", help="Repack a tts mod.")
@@ -38,13 +42,17 @@ def unpack_cmd(*, savegame_file: Optional[Path], fileid: Optional[int]) -> None:
     default="build/packed-savegame.json",
 )
 def repack_cmd(*, savegame_file: Path) -> None:
+    from .config import CONFIG_NAME, Config
     from .repack import repack
     from .savegame import UnpackedSavegame
 
     if not savegame_file.parent.exists():
         savegame_file.parent.mkdir(parents=True)
 
-    savegame = repack(unpacked_savegame=UnpackedSavegame(Path.cwd()))
+    savegame_dir = Path.cwd()
+    config = Config.load(savegame_dir.joinpath(CONFIG_NAME))
+
+    savegame = repack(unpacked_savegame=UnpackedSavegame(savegame_dir, config))
 
     savegame_file.write_text(format_json(savegame), encoding="utf-8")
 
@@ -70,12 +78,16 @@ def download_cmd(*, fileid: int, output: Optional[Path]) -> None:
     description="In particular, this will apply any configured quantization.",
 )
 def fmt_cmd() -> None:
+    from .config import CONFIG_NAME, Config
     from .repack import repack
     from .savegame import UnpackedSavegame
     from .unpack import unpack
 
-    savegame = repack(unpacked_savegame=UnpackedSavegame(Path.cwd()))
-    unpack(savegame=savegame, unpacked_savegame=UnpackedSavegame(Path.cwd()))
+    savegame_dir = Path.cwd()
+    config = Config.load(savegame_dir.joinpath(CONFIG_NAME))
+
+    savegame = repack(unpacked_savegame=UnpackedSavegame(savegame_dir, config))
+    unpack(savegame=savegame, unpacked_savegame=UnpackedSavegame(savegame_dir, config))
 
 
 main = app.main

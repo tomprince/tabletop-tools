@@ -20,6 +20,7 @@ from typing import (
 
 import attr
 
+from .config import Config
 from .utils.formats import format_json, parse_json, to_unix
 
 T = TypeVar("T")
@@ -39,6 +40,7 @@ def verify_name(name: str) -> None:
 @attr.s(auto_attribs=True)
 class JsonFile:
     _file: Path
+    _config: Config
 
     def write_json(self, data: Dict[Any, Any]) -> None:
         if data is not None:
@@ -57,6 +59,7 @@ class JsonFile:
 @attr.s(auto_attribs=True)
 class TextFile:
     _file: Path
+    _config: Config
 
     def write_text(self, data: str) -> None:
         if data:
@@ -71,13 +74,16 @@ class TextFile:
             return ""
 
 
-@attr.s(auto_attribs=True)
+@attr.s(auto_attribs=True, init=False)
 class ScriptFile:
     """
     File that TTS strips trailing new-lines from when sending to external editor
     """
 
-    _file: TextFile = attr.ib(converter=TextFile)
+    _file: TextFile
+
+    def __init__(self, path: Path, config: Config):
+        self._file = TextFile(path, config)
 
     def write_text(self, data: str) -> None:
         self._file.write_text(data)
@@ -92,16 +98,17 @@ class ScriptFile:
 @attr.s(auto_attribs=True)
 class UnpackedIndex(Generic[T]):
     _path: Path
-    _child_type: Callable[[Path], T]
+    _config: Config
+    _child_type: Callable[[Path, Config], T]
 
     def __class_getitem__(
         cls, child_type: Type[T]
-    ) -> Callable[[Path], UnpackedIndex[T]]:
+    ) -> Callable[[Path, Config], UnpackedIndex[T]]:
         return partial(cls, child_type=child_type)
 
     @property
     def _index(self) -> TextFile:
-        return TextFile(self._path.joinpath("index.list"))
+        return TextFile(self._path.joinpath("index.list"), self._config)
 
     def exists(self) -> bool:
         return self._path.is_dir()
@@ -115,7 +122,7 @@ class UnpackedIndex(Generic[T]):
             path.mkdir(parents=True, exist_ok=True)
         elif not path.is_dir():
             raise Exception("Objects must be directories")
-        return self._child_type(path)
+        return self._child_type(path, self._config)
 
     def children(self) -> Iterator[Tuple[str, T]]:
         if not self.exists():
@@ -138,11 +145,13 @@ class UnpackedIndex(Generic[T]):
 
 
 def _get_child(self: Any, *, path: Path, make: Callable[..., T]) -> T:
-    return make(self._path.joinpath(path))
+    return make(self._path.joinpath(path), self._config)
 
 
 def _unpacked_layout(cls: type) -> type:
-    new_cls = attr.make_class(cls.__name__, {"_path": attr.ib(type=Path)})
+    new_cls = attr.make_class(
+        cls.__name__, {"_path": attr.ib(type=Path), "_config": attr.ib(type=Config)}
+    )
     hints = get_type_hints(cls, None, {cls.__name__: new_cls})
     for name, attr_type in hints.items():
         p = partial(_get_child, path=getattr(cls, name), make=attr_type)
