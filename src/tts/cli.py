@@ -65,4 +65,18 @@ def download_cmd(*, fileid: int, output: Optional[Path]) -> None:
     output.write_text(format_json(mod), encoding="utf-8")
 
 
+@app.command(
+    "fmt",
+    help="Normalize the unpacked savegame, as if it was freshly unpacked.",
+    description="In particular, this will apply any configured quantization.",
+)
+def fmt_cmd() -> None:
+    from .repack import repack
+    from .savegame import UnpackedSavegame
+    from .unpack import unpack
+
+    savegame = repack(unpacked_savegame=UnpackedSavegame(Path.cwd()))
+    unpack(savegame=savegame, unpacked_savegame=UnpackedSavegame(Path.cwd()))
+
+
 main = app.main
