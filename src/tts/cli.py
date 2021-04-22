@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import json
 from pathlib import Path
 from typing import Optional
 
 from .utils.cli import CLI
-from .utils.formats import format_json
+from .utils.formats import format_json, parse_json
 
 app = CLI("Interact with Tabletop Simulator mods")
 
@@ -21,7 +20,7 @@ def unpack_cmd(*, savegame_file: Optional[Path], fileid: Optional[int]) -> None:
     if savegame_file and fileid:
         raise Exception("Can't specify both a savegame file and a workshop file id.")
     elif savegame_file:
-        savegame = json.loads(savegame_file.read_text(encoding="utf-8"))
+        savegame = parse_json(savegame_file.read_text(encoding="utf-8"))
     elif fileid:
         savegame = get_workshop_mod(fileid)
     else:

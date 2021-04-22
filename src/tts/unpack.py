@@ -1,7 +1,7 @@
-import json
 from typing import Any, Dict, List
 
 from .savegame import UnpackedIndex, UnpackedObject, UnpackedSavegame
+from .utils.formats import parse_json
 
 
 def _unpack_objects(
@@ -27,7 +27,7 @@ def _unpack_objects(
         if contained_objects is not None:
             _unpack_objects(contained_objects, unpacked_object.contained)
 
-        script_state = json.loads(obj.pop("LuaScriptState") or "null")
+        script_state = parse_json(obj.pop("LuaScriptState") or "null")
         unpacked_object.script_state.write_json(script_state)
 
         xml_ui = obj.pop("XmlUI", "")
@@ -42,7 +42,7 @@ def unpack(*, savegame: Dict[str, Any], unpacked_savegame: UnpackedSavegame) -> 
     script = savegame.pop("LuaScript").strip()
     unpacked_savegame.script.write_text(script)
 
-    script_state = json.loads(savegame.pop("LuaScriptState") or "null")
+    script_state = parse_json(savegame.pop("LuaScriptState") or "null")
     unpacked_savegame.script_state.write_json(script_state)
 
     note = savegame.pop("Note")

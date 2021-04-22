@@ -1,7 +1,7 @@
-import json
 from typing import Any, Dict, List
 
 from .savegame import UnpackedIndex, UnpackedObject, UnpackedSavegame
+from .utils.formats import dump_json
 
 
 def _repack_objects(base_path: UnpackedIndex[UnpackedObject]) -> List[Dict[str, Any]]:
@@ -21,7 +21,7 @@ def _repack_objects(base_path: UnpackedIndex[UnpackedObject]) -> List[Dict[str, 
 
         script_state = unpacked_object.script_state.read_json()
         if script_state is not None:
-            obj["LuaScriptState"] = json.dumps(script_state)
+            obj["LuaScriptState"] = dump_json(script_state)
         else:
             obj["LuaScriptState"] = ""
 
@@ -40,7 +40,7 @@ def repack(*, unpacked_savegame: UnpackedSavegame) -> Dict[str, Any]:
 
     script_state = unpacked_savegame.script_state.read_json()
     if script_state is not None:
-        savegame["LuaScriptState"] = json.dumps(script_state)
+        savegame["LuaScriptState"] = dump_json(script_state)
     else:
         savegame["LuaScriptState"] = ""
 

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import re
 from functools import partial
 from pathlib import Path
@@ -16,13 +15,12 @@ from typing import (
     Tuple,
     Type,
     TypeVar,
-    cast,
     get_type_hints,
 )
 
 import attr
 
-from .utils.formats import format_json, to_unix
+from .utils.formats import format_json, parse_json, to_unix
 
 T = TypeVar("T")
 
@@ -50,9 +48,8 @@ class JsonFile:
 
     def read_json(self) -> Optional[Dict[Any, Any]]:
         if self._file.is_file():
-            return cast(
-                Dict[Any, Any], json.loads(self._file.read_text(encoding="utf-8"))
-            )
+            return parse_json(self._file.read_text(encoding="utf-8"))
+
         else:
             return None
 
