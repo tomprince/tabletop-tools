@@ -44,7 +44,9 @@ class JsonFile:
 
     def write_json(self, data: Dict[Any, Any]) -> None:
         if data is not None:
-            self._file.write_text(format_json(data), encoding="utf-8")
+            self._file.write_text(
+                format_json(data, config=self._config), encoding="utf-8"
+            )
         elif self._file.exists():
             self._file.unlink()
 

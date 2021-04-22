@@ -54,7 +54,7 @@ def repack_cmd(*, savegame_file: Path) -> None:
 
     savegame = repack(unpacked_savegame=UnpackedSavegame(savegame_dir, config))
 
-    savegame_file.write_text(format_json(savegame), encoding="utf-8")
+    savegame_file.write_text(format_json(savegame, config=config), encoding="utf-8")
 
 
 @app.command("workshop-download", help="Download a mod from the steam workshop.")
@@ -63,13 +63,14 @@ def repack_cmd(*, savegame_file: Path) -> None:
     "-o", type=Path, dest="output", help="File to write mod (default: <fileid>.json)"
 )
 def download_cmd(*, fileid: int, output: Optional[Path]) -> None:
+    from .config import Config
     from .workshop import get_workshop_mod
 
     if output is None:
         output = Path(f"{fileid}.json")
 
     mod = get_workshop_mod(fileid)
-    output.write_text(format_json(mod), encoding="utf-8")
+    output.write_text(format_json(mod, config=Config()), encoding="utf-8")
 
 
 @app.command(

@@ -12,6 +12,8 @@ CONFIG_NAME = Path("tabletop-tools.toml")
 @attr.resolve_types
 @attr.s(auto_attribs=True)
 class Config:
+    quantize: bool = False
+
     @classmethod
     def load(cls, config_file: Path) -> Config:
         if config_file.exists():
