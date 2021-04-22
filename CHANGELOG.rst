@@ -8,6 +8,11 @@ on `PyPI <https://pypi.org/project/tabletop-tools/>`__.
 
 .. changelog start
 
+v0.6.1
+......
+Strip trailing ``\n``s in packed savegames, since Tabletop Simulators external editor integration does that. (See https://tabletopsimulator.nolt.io/597)
+
+
 v0.6.0
 ......
 tabletop-tools will now automatically delete unreferenced directories when unpacking.
