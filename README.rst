@@ -19,9 +19,9 @@ to unpack a savegame.
 Config
 ......
 
-You can provide a :file:`tabletop-tools.toml` at the root of a savegame, to configure tabletop-tools.
+You can provide a ``tabletop-tools.toml`` at the root of a savegame, to configure tabletop-tools.
 
-Currently, there is one supported option (`quantize`), that causes tabletop-tools to round floats to the nearest 0.0001.
+Currently, there is one supported option (``quantize``), that causes tabletop-tools to round floats to the nearest 0.0001.
 
 .. code:: toml
 
