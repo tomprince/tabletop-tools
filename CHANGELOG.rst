@@ -8,6 +8,11 @@ on `PyPI <https://pypi.org/project/tabletop-tools/>`__.
 
 .. changelog start
 
+v0.7.1
+......
+Fix README.rst so it is parsed by flit, and add tests to ensure it works in the future.
+
+
 v0.7.0
 ......
 - Automatically quantize all numbers in savegames to the nearest 0.0001. This should result in much less noise when unpacking a savegame.
