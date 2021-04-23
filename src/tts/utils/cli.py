@@ -8,7 +8,18 @@ import argparse
 import logging
 import sys
 import traceback
-from typing import Any, Callable, Dict, List, Protocol, Tuple, TypeVar, Union, cast
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Protocol,
+    Tuple,
+    TypeVar,
+    Union,
+    cast,
+)
 
 import attr
 
@@ -23,16 +34,33 @@ class CommandType(Protocol):
 F = TypeVar("F", bound=Union[CommandType, Callable[..., None]])
 
 
+class _HelpFormatter(argparse.HelpFormatter):
+    def _fill_text(self, text: str, text_width: int, indent: str) -> str:
+        paras = text.split("\n\n")
+        _fill_text = super()._fill_text
+        return "\n\n".join([_fill_text(para, text_width, indent) for para in paras])
+
+
 @attr.s(cmp=False)
 class CLI:
     description = attr.ib(type=str)
-    _commands: List[Tuple[CommandType, Any, Any, Any]] = attr.ib(default=[], init=False)
+    _commands: List[
+        Tuple[CommandType, str, Optional[str], Optional[str], Any, Any]
+    ] = attr.ib(default=[], init=False)
 
-    def command(self, *args: Any, **kwargs: Any) -> Callable[[F], F]:
+    def command(
+        self,
+        name: str,
+        help: Optional[str] = None,
+        description: Optional[str] = None,
+        **kwargs: Any,
+    ) -> Callable[[F], F]:
         defaults = kwargs.pop("defaults", {})
 
         def decorator(func: F) -> F:
-            self._commands.append((cast(CommandType, func), args, kwargs, defaults))
+            self._commands.append(
+                (cast(CommandType, func), name, help, description, kwargs, defaults)
+            )
             return func
 
         return decorator
@@ -53,11 +81,21 @@ class CLI:
         return decorator
 
     def create_parser(self) -> argparse.ArgumentParser:
-        parser = argparse.ArgumentParser(description=self.description)
+        parser = argparse.ArgumentParser(
+            description=self.description, formatter_class=_HelpFormatter
+        )
         subparsers = parser.add_subparsers(dest="command")
         subparsers.required = True
-        for (func, args, kwargs, defaults) in self._commands:
-            subparser = subparsers.add_parser(*args, **kwargs)
+        for (func, name, help, description, kwargs, defaults) in self._commands:
+            if help and description:
+                description = f"{help}\n\n{description}"
+            subparser = subparsers.add_parser(
+                name,
+                help=help,
+                description=description,
+                **kwargs,
+                formatter_class=_HelpFormatter,
+            )
             for arg in getattr(func, "args", []):
                 subparser.add_argument(*arg[0], **arg[1])
             subparser.set_defaults(command=func, **defaults)
