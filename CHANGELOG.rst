@@ -8,6 +8,12 @@ on `PyPI <https://pypi.org/project/tabletop-tools/>`__.
 
 .. changelog start
 
+v0.7.0
+......
+- Automatically quantize all numbers in savegames to the nearest 0.0001. This should result in much less noise when unpacking a savegame.
+- Add a ``tts fmt`` command that will normalize an unpacked savegame.
+
+
 v0.6.1
 ......
 Strip trailing ``\n``s in packed savegames, since Tabletop Simulators external editor integration does that. (See https://tabletopsimulator.nolt.io/597)
