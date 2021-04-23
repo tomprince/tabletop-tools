@@ -30,6 +30,10 @@ jobs:
                   git config user.email github-actions@github.com
                   python -m tts_tooling .
                   git show
+            - name: Test packaging
+              run: |
+                  flit build
+              if: "github.event_name == 'pull_request'"
             - name: Push changeset
               run:
                   git push
