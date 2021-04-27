@@ -1,6 +1,6 @@
 from typing import Any, Dict, List
 
-from .savegame import UnpackedIndex, UnpackedObject, UnpackedSavegame
+from .savegame import UnpackedIndex, UnpackedNote, UnpackedObject, UnpackedSavegame
 from .utils.formats import dump_json
 
 
@@ -31,6 +31,18 @@ def _repack_objects(base_path: UnpackedIndex[UnpackedObject]) -> List[Dict[str, 
     return objects
 
 
+def _repack_notes(
+    base_path: UnpackedIndex[UnpackedNote],
+) -> Dict[str, Dict[str, Any]]:
+    notes = {}
+    for label, unpacked_note in base_path.children():
+        note = unpacked_note.note.read_json(required=True)
+        note["body"] = unpacked_note.text.read_text()
+
+        notes[label] = note
+    return notes
+
+
 def repack(*, unpacked_savegame: UnpackedSavegame) -> Dict[str, Any]:
     savegame = unpacked_savegame.savegame.read_json()
     assert isinstance(savegame, dict)
@@ -46,6 +58,16 @@ def repack(*, unpacked_savegame: UnpackedSavegame) -> Dict[str, Any]:
 
     note = unpacked_savegame.note.read_text()
     savegame["Note"] = note
+
+    notes = _repack_notes(unpacked_savegame.notes)
+    if notes:
+        if "TabStates" in savegame:
+            raise Exception(
+                f"Found both 'TabStates' in savegame, "
+                f"and notes in '{unpacked_savegame.notes.path}'."
+            )
+        else:
+            savegame["TabStates"] = notes
 
     savegame["XmlUI"] = unpacked_savegame.xml_ui.read_text()
 

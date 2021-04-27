@@ -1,6 +1,6 @@
 from typing import Any, Dict, List
 
-from .savegame import UnpackedIndex, UnpackedObject, UnpackedSavegame
+from .savegame import UnpackedIndex, UnpackedNote, UnpackedObject, UnpackedSavegame
 from .utils.formats import parse_json
 
 
@@ -38,6 +38,23 @@ def _unpack_objects(
         base_path.write_index(index)
 
 
+def _unpack_notebook(
+    notes: Dict[str, Dict[str, Any]], base_path: UnpackedIndex[UnpackedNote]
+) -> None:
+    index = []
+    for label, note in notes.items():
+        unpacked_note = base_path.child(label, create=True)
+        index.append(label)
+
+        body = note.pop("body")
+        unpacked_note.text.write_text(body)
+
+        unpacked_note.note.write_json(note)
+
+    if index:
+        base_path.write_index(index)
+
+
 def unpack(*, savegame: Dict[str, Any], unpacked_savegame: UnpackedSavegame) -> None:
     script = savegame.pop("LuaScript").strip()
     unpacked_savegame.script.write_text(script)
@@ -47,6 +64,9 @@ def unpack(*, savegame: Dict[str, Any], unpacked_savegame: UnpackedSavegame) -> 
 
     note = savegame.pop("Note")
     unpacked_savegame.note.write_text(note)
+
+    notes = savegame.pop("TabStates")
+    _unpack_notebook(notes, unpacked_savegame.notes)
 
     xml_ui = savegame.pop("XmlUI", "")
     unpacked_savegame.xml_ui.write_text(xml_ui.strip())

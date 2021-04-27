@@ -127,6 +127,10 @@ class UnpackedIndex(Generic[T]):
     def _index(self) -> TextFile:
         return TextFile(self._path.joinpath("index.list"), self._config)
 
+    @property
+    def path(self) -> Path:
+        return self._path
+
     def exists(self) -> bool:
         return self._path.is_dir()
 
@@ -186,10 +190,17 @@ class UnpackedObject:
 
 
 @_unpacked_layout
+class UnpackedNote:
+    note: JsonFile = Path("note.json")
+    text: TextFile = Path("note.txt")
+
+
+@_unpacked_layout
 class UnpackedSavegame:
     savegame: JsonFile = Path("savegame.json")
     script: ScriptFile = Path("script.lua")
     script_state: JsonFile = Path("script-state.json")
     note: TextFile = Path("note.txt")
+    notes: UnpackedIndex[UnpackedNote] = Path("notebook")
     xml_ui: TextFile = Path("ui.xml")
     objects: UnpackedIndex[UnpackedObject] = Path("objects")
