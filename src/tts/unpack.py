@@ -42,7 +42,9 @@ def _unpack_notebook(
     notes: Dict[str, Dict[str, Any]], base_path: UnpackedIndex[UnpackedNote]
 ) -> None:
     index = []
-    for label, note in notes.items():
+    for label, note in enumerate(notes.values()):
+        label = str(label)
+
         unpacked_note = base_path.child(label, create=True)
         index.append(label)
 

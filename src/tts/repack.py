@@ -35,21 +35,11 @@ def _repack_notes(
     base_path: UnpackedIndex[UnpackedNote],
 ) -> Dict[str, Dict[str, Any]]:
     notes = {}
-    for label, unpacked_note in base_path.children():
-        try:
-            label = int(label)
-        except ValueError:
-            raise Exception(
-                f"Notebook tab has invalid label '{label}', must be integer."
-            )
+    for index, (label, unpacked_note) in enumerate(base_path.children()):
         note = unpacked_note.note.read_json(required=True)
         note["body"] = unpacked_note.text.read_text()
 
-        notes[label] = note
-
-    labels = notes.keys()
-    if labels and labels != set(range(max(labels))):
-        raise Exception("Notebook tabs must have consecutive labels")
+        notes[str(index)] = note
 
     return notes
 
