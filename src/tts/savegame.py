@@ -11,11 +11,13 @@ from typing import (
     Generic,
     Iterator,
     List,
+    Literal,
     Optional,
     Tuple,
     Type,
     TypeVar,
     get_type_hints,
+    overload,
 )
 
 import attr
@@ -50,10 +52,21 @@ class JsonFile:
         elif self._file.exists():
             self._file.unlink()
 
-    def read_json(self) -> Optional[Dict[Any, Any]]:
+    @overload
+    def read_json(self, *, required: Literal[True]) -> Dict[Any, Any]:
+        ...
+
+    @overload
+    def read_json(
+        self, *, required: Literal[False] = False
+    ) -> Optional[Dict[Any, Any]]:
+        ...
+
+    def read_json(self, *, required: bool = False) -> Optional[Dict[Any, Any]]:
         if self._file.is_file():
             return parse_json(self._file.read_text(encoding="utf-8"))
-
+        elif required:
+            raise Exception(f"Missing '{self._file.name}' in '{self._file.parent}'.")
         else:
             return None
 
@@ -69,9 +82,11 @@ class TextFile:
         elif self._file.exists():
             self._file.unlink()
 
-    def read_text(self) -> str:
+    def read_text(self, *, required: bool = False) -> str:
         if self._file.is_file():
             return self._file.read_text(encoding="utf-8")
+        elif required:
+            raise Exception(f"Missing '{self._file.name}' in '{self._file.parent}'.")
         else:
             return ""
 
@@ -90,8 +105,8 @@ class ScriptFile:
     def write_text(self, data: str) -> None:
         self._file.write_text(data)
 
-    def read_text(self) -> str:
-        text = self._file.read_text()
+    def read_text(self, *, required: bool = False) -> str:
+        text = self._file.read_text(required=required)
         if text is not None:
             text = text.rstrip("\n")
         return text
